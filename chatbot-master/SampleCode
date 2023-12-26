@@ -1,0 +1,82 @@
+
+const salesCategories = [
+    'Sales Revenue',
+    'Production',
+    'Cost Analysis',
+    'Raw Material'
+];
+
+const revenueSubOptions = [
+    'Anara',
+    'BBSR',
+    'Bhurwal',
+    'BLSPR CP',
+    'BLSPR LL',
+    'Gaya',
+    'Hubli',
+    'Mirza',
+    'Pathri',
+    'Sholaka',
+    'TMQ',
+    'Udvada',
+    'Wadiyaram'
+];
+
+const MyChatBot = () => {
+    const flow = {
+        start: {
+            message: "Welcome to the Business Dashboard! Please choose a category.",
+            options: salesCategories,
+            path: "wait_for_selection",
+        },
+        wait_for_selection: {
+            message: "Please wait a moment...",
+            path: (params) => {
+                const selectedCategory = params.userInput;
+                if (salesCategories.includes(selectedCategory)) {
+                    return "category_selected";
+                } else {
+                    return "wait_for_selection";
+                }
+            },
+        },
+        category_selected: {
+            message: (params) => {
+                const category = params.userInput;
+                return `You selected the ${category} category. What specific location (sub-option) would you like to know about in ${category}?`;
+            },
+            options: revenueSubOptions.concat(["Go back"]),
+            path: (params) => {
+                const userChoice = params.userInput.toLowerCase();
+                if (userChoice === "go back") {
+                    return "wait_for_selection";
+                } else if (revenueSubOptions.includes(userChoice)) {
+                    return "show_location_details";
+                } else {
+                    return "category_selected";
+                }
+            },
+        },
+        show_location_details: {
+            message: (params) => `Here are the details for the location: ${params.userInput}.`,
+            // Add specific details for the selected location
+            path: "end",
+        },
+        end: {
+            message: "Thank you for using the Dashboard! See you again!",
+            path: "end_loop",
+        },
+        end_loop: {
+            message: (params) => `Received: ${params.userInput}`,
+            path: "end_loop",
+        },
+    };
+
+    return (
+        <ChatBot options={{ theme: { embedded: true }, chatHistory: { storageKey: "business_dashboard" } }} flow={flow} />
+    );
+};
+
+render(<MyChatBot />);
+
+
